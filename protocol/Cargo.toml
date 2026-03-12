@@ -1,0 +1,28 @@
+[package]
+name = "anycall-protocol"
+version = "0.1.0"
+authors = ["shenzye <shenzye@hotmail.com>"]
+edition = "2024"
+license = "MIT"
+keywords = ["rpc", "network", "server", "api", "microservices"]
+categories = ["asynchronous", "network-programming"]
+description = "Protocol adapters for anycall."
+readme = "../README.md"
+repository = "https://github.com/shenzye/anycall"
+homepage = "https://github.com/shenzye/anycall"
+documentation = "https://docs.rs/anycall-protocol"
+
+[features]
+default = []
+
+[dependencies]
+anycall = { workspace = true }
+axum = { workspace = true, features = ["json", "macros"] }
+futures = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true, features = ["derive", "rc"] }
+thiserror = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,8 @@
+/target
+/models
+/.idea
+/.DS_Store
+/.direnv
+/.cargo/bin
+/.cargo/lib
+/.claude/settings.local.json

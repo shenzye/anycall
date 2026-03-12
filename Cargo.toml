@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+    "core",
+    "macro",
+    "protocol",
+    "test"
+]
+
+[workspace.dependencies]
+anycall = { version = "0.1.0", path = "core" }
+anycall-macro = { version = "0.1.0", path = "macro" }
+anycall-protocol = { version = "0.1.0", path = "protocol" }
+axum = { version = "0.8", default-features = false }
+ciborium = "0.2"
+futures = "0.3"
+proc-macro2 = "1.0"
+quote = "1.0"
+reqwest = { version = "0.13", default-features = false }
+serde = "1.0"
+serde_json = "1.0"
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+thiserror = "2.0"
+tokio = "1"

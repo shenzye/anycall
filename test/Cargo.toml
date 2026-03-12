@@ -1,0 +1,16 @@
+[package]
+name = "anycall-test"
+version = "0.1.0"
+authors = ["shenzye <shenzye@hotmail.com>"]
+edition = "2024"
+publish = false
+
+[dependencies]
+anycall = { workspace = true }
+anycall-protocol = { workspace = true }
+axum = { workspace = true }
+reqwest = { workspace = true }
+
+[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+axum = { workspace = true, features = ["tokio", "http1"] }

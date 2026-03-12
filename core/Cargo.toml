@@ -1,0 +1,23 @@
+[package]
+name = "anycall"
+version = "0.1.0"
+authors = ["shenzye <shenzye@hotmail.com>"]
+edition = "2024"
+license = "MIT"
+keywords = ["rpc", "network", "server", "api", "microservices"]
+categories = ["asynchronous", "network-programming"]
+description = "An RPC framework for Rust with a focus on ease of use."
+readme = "../README.md"
+repository = "https://github.com/shenzye/anycall"
+homepage = "https://github.com/shenzye/anycall"
+documentation = "https://docs.rs/anycall"
+
+[dependencies]
+anycall-macro = { workspace = true }
+ciborium = { workspace = true }
+serde = { workspace = true, features = ["derive", "rc"] }
+serde_json = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

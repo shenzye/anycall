@@ -1,0 +1,21 @@
+[package]
+name = "anycall-macro"
+version = "0.1.0"
+authors = ["shenzye <shenzye@hotmail.com>"]
+edition = "2024"
+license = "MIT"
+keywords = ["rpc", "network", "server", "api", "microservices"]
+categories = ["asynchronous", "network-programming"]
+description = "Proc macros for anycall."
+readme = "../README.md"
+repository = "https://github.com/shenzye/anycall"
+homepage = "https://github.com/shenzye/anycall"
+documentation = "https://docs.rs/anycall-macro"
+
+[dependencies]
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
+
+[lib]
+proc-macro = true
