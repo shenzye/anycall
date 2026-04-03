@@ -7,5 +7,5 @@
 ## Verification Commands
 - Native check: cargo check
 - Wasm check: cargo check --target wasm32-unknown-unknown
-- Tests: cargo test
+- Tests: cargo test -p anycall-test
 

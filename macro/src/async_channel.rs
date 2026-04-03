@@ -137,7 +137,10 @@ impl AsyncChannelGenerator<'_> {
         quote! {
             impl<A> #async_client_trait_ident for #client_ident<A>
             where
-                A: ::anycall::async_channel::AsyncClientAgent
+                A: ::anycall::async_channel::AsyncClientAgent<
+                    Req = #request_ident,
+                    Resp = #response_ident,
+                >
             {
                 type Err = A::Err;
 

@@ -8,43 +8,8 @@ pub trait Counter {
 
 #[cfg(not(target_family = "wasm"))]
 #[cfg(test)]
-mod native_tests {
-    #[tokio::test]
-    async fn test_counter() {
-        use crate::counter::CounterAsyncService;
-        use crate::counter::{CounterAsyncClient, CounterClient, CounterServerImpl};
-        use anycall::coder::CborCoder;
-        use anycall_protocol::axum::AxumBodyHandler;
-        use anycall_protocol::reqwest::ReqwestPost;
-        use axum::Router;
-        use axum::routing::post;
-        let handle = tokio::spawn(async {
-            let app = Router::new()
-                .route(
-                    "/test",
-                    post(AxumBodyHandler::new(
-                        CounterServerImpl.into_provider(),
-                        CborCoder,
-                    )),
-                )
-                .into_make_service();
+mod native_tests;
 
-            let listener = tokio::net::TcpListener::bind("127.0.0.1:9527")
-                .await
-                .unwrap();
-            axum::serve(listener, app).await.unwrap();
-        });
-        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
-        let a = CounterClient::new(ReqwestPost::new(
-            reqwest::Client::new(),
-            "http://127.0.0.1:9527/test".to_string(),
-            CborCoder,
-        ));
-        assert_eq!(a.sum(1, 1).await.unwrap(), 2);
-        assert_eq!(a.sum_async(1, 1).await.unwrap(), 2);
-        handle.abort();
-    }
-}
 struct CounterNative;
 impl CounterAsyncClient for CounterNative {
     type Err = Infallible;
