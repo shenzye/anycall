@@ -1,6 +1,6 @@
 use super::CounterServerImpl;
 use anycall::async_channel::AsyncClientAgent;
-use anycall::async_client_agent_box::AsyncClientAgentExt;
+use anycall::wrapper::async_client_agent_box::AsyncClientAgentExt;
 use anycall_protocol::balance::{Balance, BalanceBuildError};
 use std::convert::Infallible;
 use std::future::Future;
