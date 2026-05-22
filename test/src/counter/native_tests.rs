@@ -123,9 +123,11 @@ async fn test_counter() {
     use crate::counter::{CounterAsyncClient, CounterClient};
     use anycall::coder::CborCoder;
     use anycall_protocol::axum::AxumBodyHandler;
-    use anycall_protocol::reqwest::ReqwestPost;
+    use anycall_protocol::reqwest::{ReqwestPost, ReqwestPostConfig};
+    use arc_swap::ArcSwap;
     use axum::Router;
     use axum::routing::post;
+    use reqwest::header::HeaderMap;
 
     let handle = tokio::spawn(async {
         let app = Router::new()
@@ -148,7 +150,10 @@ async fn test_counter() {
 
     let a = CounterClient::new(ReqwestPost::new(
         reqwest::Client::new(),
-        "http://127.0.0.1:9527/test".to_string(),
+        ArcSwap::from_pointee(ReqwestPostConfig {
+            api_url: "http://127.0.0.1:9527/test".to_string(),
+            header_map: HeaderMap::new(),
+        }),
         CborCoder,
     ));
     assert_eq!(a.sum(1, 1).await.unwrap(), 2);

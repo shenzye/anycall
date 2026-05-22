@@ -1,5 +1,7 @@
 use anycall::async_channel::AsyncClientAgent;
 use anycall::maybe_send::{MaybeSend, MaybeSendBoxFuture};
+use arc_swap::ArcSwap;
+use reqwest::header::HeaderMap;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -13,9 +15,15 @@ where
     Resp: DeserializeOwned,
 {
     reqwest_client: Client,
-    api_url: String,
+    pub config: ArcSwap<ReqwestPostConfig>,
     coder: Coder,
     _req_resp: PhantomData<(Req, Resp)>,
+}
+
+#[derive(Debug)]
+pub struct ReqwestPostConfig {
+    pub api_url: String,
+    pub header_map: HeaderMap,
 }
 
 impl<Coder, Req, Resp> ReqwestPost<Coder, Req, Resp>
@@ -24,10 +32,10 @@ where
     Req: Serialize,
     Resp: DeserializeOwned,
 {
-    pub fn new(reqwest_client: Client, api_url: String, coder: Coder) -> Self {
+    pub fn new(reqwest_client: Client, config: ArcSwap<ReqwestPostConfig>, coder: Coder) -> Self {
         Self {
             reqwest_client,
-            api_url,
+            config,
             coder,
             _req_resp: PhantomData,
         }
@@ -64,7 +72,13 @@ where
             Ok(body) => body,
             Err(err) => return Box::pin(std::future::ready(Err(err))),
         };
-        let req = self.reqwest_client.post(&self.api_url).body(body).send();
+        let config = self.config.load_full();
+        let req = self
+            .reqwest_client
+            .post(config.api_url.as_str())
+            .headers(config.header_map.clone())
+            .body(body)
+            .send();
         let coder = &self.coder;
         Box::pin(async move {
             let b = req
