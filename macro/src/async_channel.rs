@@ -113,7 +113,12 @@ impl AsyncChannelGenerator<'_> {
                 #(
                     #[allow(unused)]
                     #(#method_attrs)*
-                    async fn #method_idents(&self, #(#args),*) -> ::core::result::Result<#return_types, Self::Err>;
+                    fn #method_idents(
+                        &self,
+                        #(#args),*
+                    ) -> impl ::core::future::Future<
+                        Output = ::core::result::Result<#return_types, Self::Err>
+                    > + ::anycall::maybe_send::MaybeSend + '_;
                 )*
             }
         }
@@ -150,7 +155,10 @@ impl AsyncChannelGenerator<'_> {
                     fn #method_idents(
                         &self,
                         #(#args),*
-                    ) -> impl ::core::future::Future<Output = ::core::result::Result<#return_types, A::Err>> + '_ {
+                    ) -> impl ::core::future::Future<Output = ::core::result::Result<#return_types, A::Err>>
+                        + ::anycall::maybe_send::MaybeSend
+                        + '_
+                    {
                         let request = #request_ident::#camel_case_idents { #(#arg_pats),* };
                         let resp = self.0.call(request);
                         async move {

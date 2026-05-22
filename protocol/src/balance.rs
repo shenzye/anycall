@@ -1,8 +1,7 @@
 use anycall::async_channel::AsyncClientAgent;
+use anycall::maybe_send::MaybeSendBoxFuture;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::future::Future;
-use std::pin::Pin;
 use std::sync::atomic::AtomicUsize;
 use thiserror::Error;
 
@@ -78,7 +77,7 @@ where
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>> + '_>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         let idx = self.index.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         self.agents[idx % self.agents.len()].call(request_body)
     }

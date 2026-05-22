@@ -1,16 +1,13 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::future::Future;
-use std::pin::Pin;
+
+use crate::maybe_send::MaybeSendBoxFuture;
 
 pub trait AsyncClientAgent {
     type Req: Serialize;
     type Resp: DeserializeOwned;
     type Err;
-    fn call(
-        &self,
-        request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>> + '_>>;
+    fn call(&self, request_body: Self::Req) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>>;
 }
 
 pub trait AsyncServiceProvider {

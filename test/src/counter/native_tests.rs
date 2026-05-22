@@ -1,10 +1,9 @@
 use super::CounterServerImpl;
 use anycall::async_channel::AsyncClientAgent;
+use anycall::maybe_send::MaybeSendBoxFuture;
 use anycall::wrapper::async_client_agent_box::AsyncClientAgentExt;
 use anycall_protocol::balance::{Balance, BalanceBuildError};
 use std::convert::Infallible;
-use std::future::Future;
-use std::pin::Pin;
 
 use crate::counter::{CounterAsyncClient, CounterRequest, CounterResponse};
 
@@ -46,7 +45,7 @@ impl AsyncClientAgent for OffsetAgentA {
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>>>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         Box::pin(async move {
             let response = match request_body {
                 CounterRequest::Sum { a, b } => {
@@ -77,7 +76,7 @@ impl AsyncClientAgent for OffsetAgentB {
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>>>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         Box::pin(async move {
             let response = match request_body {
                 CounterRequest::Sum { a, b } => {
@@ -106,7 +105,7 @@ impl AsyncClientAgent for OffsetAgent {
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>>>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         let offset = self.offset;
         Box::pin(async move {
             let response = match request_body {

@@ -1,10 +1,9 @@
 use anycall::async_channel::AsyncClientAgent;
+use anycall::maybe_send::{MaybeSend, MaybeSendBoxFuture};
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::future::Future;
 use std::marker::PhantomData;
-use std::pin::Pin;
 use thiserror::Error;
 
 pub struct ReqwestPost<Coder, Req, Resp>
@@ -47,9 +46,11 @@ pub enum HttpPostErr<S, D> {
 
 impl<Coder, Req, Resp> AsyncClientAgent for ReqwestPost<Coder, Req, Resp>
 where
-    Coder: anycall::coder::Coder,
+    Coder: anycall::coder::Coder + Sync,
+    Coder::SerErr: MaybeSend,
+    Coder::DesErr: MaybeSend,
     Req: Serialize,
-    Resp: DeserializeOwned,
+    Resp: DeserializeOwned + MaybeSend,
 {
     type Req = Req;
     type Resp = Resp;
@@ -58,12 +59,13 @@ where
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>> + '_>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         let body = match self.coder.encode(request_body).map_err(HttpPostErr::Ser) {
             Ok(body) => body,
             Err(err) => return Box::pin(std::future::ready(Err(err))),
         };
         let req = self.reqwest_client.post(&self.api_url).body(body).send();
+        let coder = &self.coder;
         Box::pin(async move {
             let b = req
                 .await
@@ -71,7 +73,7 @@ where
                 .bytes()
                 .await
                 .map_err(HttpPostErr::Rqe)?;
-            self.coder.decode(b.as_ref()).map_err(HttpPostErr::Des)
+            coder.decode(b.as_ref()).map_err(HttpPostErr::Des)
         })
     }
 }

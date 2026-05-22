@@ -1,7 +1,6 @@
 use crate::async_channel::AsyncClientAgent;
-use std::future::Future;
+use crate::maybe_send::MaybeSendBoxFuture;
 use std::marker::PhantomData;
-use std::pin::Pin;
 
 pub struct AsyncClientAgentBox<A, E>
 where
@@ -37,7 +36,7 @@ where
     fn call(
         &self,
         request_body: Self::Req,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Resp, Self::Err>> + '_>> {
+    ) -> MaybeSendBoxFuture<'_, Result<Self::Resp, Self::Err>> {
         let future = self.inner.call(request_body);
         Box::pin(async move {
             match future.await {
