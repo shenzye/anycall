@@ -50,6 +50,11 @@ pub enum HttpPostErr<S, D> {
     Des(D),
     #[error("{0}")]
     Rqe(reqwest::Error),
+    #[error("HTTP {status}")]
+    Status {
+        status: reqwest::StatusCode,
+        body: Vec<u8>,
+    },
 }
 
 impl<Coder, Req, Resp> AsyncClientAgent for ReqwestPost<Coder, Req, Resp>
@@ -81,13 +86,16 @@ where
             .send();
         let coder = &self.coder;
         Box::pin(async move {
-            let b = req
-                .await
-                .map_err(HttpPostErr::Rqe)?
-                .bytes()
-                .await
-                .map_err(HttpPostErr::Rqe)?;
-            coder.decode(b.as_ref()).map_err(HttpPostErr::Des)
+            let response = req.await.map_err(HttpPostErr::Rqe)?;
+            let status = response.status();
+            let body = response.bytes().await.map_err(HttpPostErr::Rqe)?;
+            if !status.is_success() {
+                return Err(HttpPostErr::Status {
+                    status,
+                    body: body.to_vec(),
+                });
+            }
+            coder.decode(body.as_ref()).map_err(HttpPostErr::Des)
         })
     }
 }

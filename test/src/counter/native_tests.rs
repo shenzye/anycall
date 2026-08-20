@@ -165,6 +165,75 @@ async fn test_counter() {
 }
 
 #[tokio::test]
+async fn test_reqwest_non_success_status_is_http_error() {
+    use crate::counter::CounterAsyncService;
+    use crate::counter::{CounterAsyncClient, CounterClient};
+    use anycall::coder::{CborCoder, JsonCoder};
+    use anycall_protocol::axum::AxumBodyHandler;
+    use anycall_protocol::reqwest::{HttpPostErr, ReqwestPost, ReqwestPostConfig};
+    use arc_swap::ArcSwap;
+    use axum::Router;
+    use axum::http::StatusCode;
+    use axum::routing::post;
+    use reqwest::header::HeaderMap;
+
+    let _ = rustls::crypto::ring::default_provider().install_default();
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    let handle = tokio::spawn(async move {
+        let app = Router::new()
+            .route(
+                "/rpc",
+                post(AxumBodyHandler::new(
+                    CounterServerImpl.into_provider(),
+                    CborCoder,
+                )),
+            )
+            .route(
+                "/fail",
+                post(|| async { (StatusCode::BAD_GATEWAY, "upstream down") }),
+            )
+            .into_make_service();
+        axum::serve(listener, app).await.unwrap();
+    });
+
+    let json_on_cbor = CounterClient::new(ReqwestPost::new(
+        reqwest::Client::new(),
+        ArcSwap::from_pointee(ReqwestPostConfig {
+            api_url: format!("http://{addr}/rpc"),
+            header_map: HeaderMap::new(),
+        }),
+        JsonCoder,
+    ));
+    match json_on_cbor.sum(1, 1).await.unwrap_err() {
+        HttpPostErr::Status { status, body } => {
+            assert_eq!(status, reqwest::StatusCode::BAD_REQUEST);
+            assert!(body.is_empty());
+        }
+        other => panic!("expected HTTP status error, got {other:?}"),
+    }
+
+    let gateway = CounterClient::new(ReqwestPost::new(
+        reqwest::Client::new(),
+        ArcSwap::from_pointee(ReqwestPostConfig {
+            api_url: format!("http://{addr}/fail"),
+            header_map: HeaderMap::new(),
+        }),
+        CborCoder,
+    ));
+    match gateway.sum(1, 1).await.unwrap_err() {
+        HttpPostErr::Status { status, body } => {
+            assert_eq!(status, reqwest::StatusCode::BAD_GATEWAY);
+            assert_eq!(body, b"upstream down");
+        }
+        other => panic!("expected HTTP status error, got {other:?}"),
+    }
+
+    handle.abort();
+}
+
+#[tokio::test]
 async fn test_counter_iroh() {
     use crate::counter::CounterAsyncService;
     use crate::counter::CounterClient;
