@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 anycall = { workspace = true }
-anycall-protocol = { workspace = true }
+anycall-protocol = { workspace = true, features = ["axum", "reqwest", "channel"] }
 arc-swap = { workspace = true }
 axum = { workspace = true }
 reqwest = { workspace = true }

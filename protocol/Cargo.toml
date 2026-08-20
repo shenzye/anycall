@@ -14,15 +14,18 @@ documentation = "https://docs.rs/anycall-protocol"
 
 [features]
 default = []
+axum = ["dep:axum", "dep:futures"]
+reqwest = ["dep:reqwest", "dep:arc-swap"]
+channel = []
 
 [dependencies]
 anycall = { workspace = true }
-axum = { workspace = true, features = ["json", "macros"] }
-futures = { workspace = true }
-reqwest = { workspace = true }
+axum = { workspace = true, optional = true, features = ["json", "macros"] }
+futures = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive", "rc"] }
 thiserror = { workspace = true }
-arc-swap = { workspace = true }
+arc-swap = { workspace = true, optional = true }
 
 [package.metadata.docs.rs]
 all-features = true

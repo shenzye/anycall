@@ -6,15 +6,21 @@ A lightweight RPC framework for Rust with a focus on readability and developer e
 
 - `anycall`: core traits, codecs, and generated client/server glue.
 - `anycall-macro`: proc-macros used by `anycall` (`#[anycall::service]`).
-- `anycall-protocol`: transport adapters for common HTTP stacks.
+- `anycall-protocol`: transport adapters, enabled via Cargo features.
 
 ## Install
 
 ```toml
 [dependencies]
 anycall = { version = "0.1" }
-anycall-protocol = { version = "0.1" }
+anycall-protocol = { version = "0.1", features = ["axum", "reqwest"] }
 ```
+
+Protocol features (all optional, none enabled by default):
+
+- `axum` — HTTP server via `AxumBodyHandler`
+- `reqwest` — HTTP client via `ReqwestPost`
+- `channel` — in-process sync channel via `new_channel_pair`
 
 ## Basic usage
 
@@ -28,8 +34,9 @@ pub trait Counter {
 
 Use the generated `*Client` and `*Service` types with a transport adapter such as:
 
-- `anycall_protocol::axum::AxumBodyHandler`
-- `anycall_protocol::reqwest::ReqwestPost`
+- `anycall_protocol::axum::AxumBodyHandler` (feature `axum`)
+- `anycall_protocol::reqwest::ReqwestPost` (feature `reqwest`)
+- `anycall_protocol::channel::new_channel_pair` (feature `channel`)
 
 For a runnable end-to-end example, see `test/src/counter.rs`.
 
