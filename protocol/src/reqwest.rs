@@ -49,7 +49,7 @@ pub enum HttpPostErr<S, D> {
     #[error("{0}")]
     Des(D),
     #[error("{0}")]
-    Rqe(reqwest::Error),
+    Req(reqwest::Error),
     #[error("HTTP {status}")]
     Status {
         status: reqwest::StatusCode,
@@ -86,9 +86,9 @@ where
             .send();
         let coder = &self.coder;
         Box::pin(async move {
-            let response = req.await.map_err(HttpPostErr::Rqe)?;
+            let response = req.await.map_err(HttpPostErr::Req)?;
             let status = response.status();
-            let body = response.bytes().await.map_err(HttpPostErr::Rqe)?;
+            let body = response.bytes().await.map_err(HttpPostErr::Req)?;
             if !status.is_success() {
                 return Err(HttpPostErr::Status {
                     status,
