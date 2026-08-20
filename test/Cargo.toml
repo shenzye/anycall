@@ -15,3 +15,6 @@ reqwest = { workspace = true }
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
 axum = { workspace = true, features = ["tokio", "http1"] }
+iroh = { workspace = true }
+anycall-protocol = { workspace = true, features = ["iroh"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }

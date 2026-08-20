@@ -20,6 +20,7 @@ Protocol features (all optional, none enabled by default):
 
 - `axum` — HTTP server via `AxumBodyHandler`
 - `reqwest` — HTTP client via `ReqwestPost`
+- `iroh` — QUIC peer transport via `IrohHandler` / `IrohConnect` (native and `wasm32-unknown-unknown`)
 - `channel` — in-process sync channel via `new_channel_pair`
 
 ## Basic usage
@@ -36,6 +37,7 @@ Use the generated `*Client` and `*Service` types with a transport adapter such a
 
 - `anycall_protocol::axum::AxumBodyHandler` (feature `axum`)
 - `anycall_protocol::reqwest::ReqwestPost` (feature `reqwest`)
+- `anycall_protocol::iroh::IrohHandler` / `anycall_protocol::iroh::IrohConnect` (feature `iroh`)
 - `anycall_protocol::channel::new_channel_pair` (feature `channel`)
 
 For a runnable end-to-end example, see `test/src/counter.rs`.

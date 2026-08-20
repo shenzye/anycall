@@ -129,6 +129,9 @@ async fn test_counter() {
     use axum::routing::post;
     use reqwest::header::HeaderMap;
 
+    // iroh enables reqwest's rustls feature; Client::new panics without a provider.
+    let _ = rustls::crypto::ring::default_provider().install_default();
+
     let handle = tokio::spawn(async {
         let app = Router::new()
             .route(
@@ -159,6 +162,40 @@ async fn test_counter() {
     assert_eq!(a.sum(1, 1).await.unwrap(), 2);
     assert_eq!(a.sum_async(1, 1).await.unwrap(), 2);
     handle.abort();
+}
+
+#[tokio::test]
+async fn test_counter_iroh() {
+    use crate::counter::CounterAsyncService;
+    use crate::counter::CounterClient;
+    use anycall::coder::CborCoder;
+    use anycall_protocol::iroh::{ALPN, IrohConnect, IrohConnectConfig, IrohHandler};
+    use arc_swap::ArcSwap;
+    use iroh::Endpoint;
+    use iroh::endpoint::presets;
+    use iroh::protocol::Router;
+
+    let server_endpoint = Endpoint::bind(presets::N0DisableRelay).await.unwrap();
+    let addr = server_endpoint.addr();
+    let router = Router::builder(server_endpoint)
+        .accept(
+            ALPN,
+            IrohHandler::new(CounterServerImpl.into_provider(), CborCoder),
+        )
+        .spawn();
+
+    let client_endpoint = Endpoint::bind(presets::N0DisableRelay).await.unwrap();
+    let client = CounterClient::new(IrohConnect::new(
+        client_endpoint,
+        ArcSwap::from_pointee(IrohConnectConfig {
+            addr,
+            alpn: ALPN.to_vec(),
+        }),
+        CborCoder,
+    ));
+    assert_eq!(client.sum(1, 1).await.unwrap(), 2);
+    assert_eq!(client.sum_async(1, 1).await.unwrap(), 2);
+    router.shutdown().await.unwrap();
 }
 
 #[tokio::test]

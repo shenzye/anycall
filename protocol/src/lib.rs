@@ -10,6 +10,10 @@ pub mod balance;
 #[cfg_attr(docsrs, doc(cfg(feature = "channel")))]
 pub mod channel;
 
+#[cfg(feature = "iroh")]
+#[cfg_attr(docsrs, doc(cfg(feature = "iroh")))]
+pub mod iroh;
+
 #[cfg(feature = "reqwest")]
 #[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
 pub mod reqwest;

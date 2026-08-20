@@ -16,12 +16,15 @@ documentation = "https://docs.rs/anycall-protocol"
 default = []
 axum = ["dep:axum", "dep:futures"]
 reqwest = ["dep:reqwest", "dep:arc-swap"]
+iroh = ["dep:iroh", "dep:n0-future", "dep:arc-swap"]
 channel = []
 
 [dependencies]
 anycall = { workspace = true }
 axum = { workspace = true, optional = true, features = ["json", "macros"] }
 futures = { workspace = true, optional = true }
+iroh = { workspace = true, optional = true }
+n0-future = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive", "rc"] }
 thiserror = { workspace = true }
