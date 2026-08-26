@@ -43,9 +43,15 @@
               firefox
               geckodriver
               wasm-bindgen-cli_0_2_121
+              llvmPackages.clang-unwrapped
+              llvmPackages.llvm
             ];
 
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+            # ring's C sources must be compiled to wasm objects, not host objects.
+            CC_wasm32_unknown_unknown = "${llvmPackages.clang-unwrapped}/bin/clang";
+            CFLAGS_wasm32_unknown_unknown = "--target=wasm32-unknown-unknown";
+            AR_wasm32_unknown_unknown = "${llvmPackages.llvm}/bin/llvm-ar";
 
           };
       }

@@ -11,10 +11,28 @@ anycall-protocol = { workspace = true, features = ["axum", "reqwest", "channel"]
 arc-swap = { workspace = true }
 axum = { workspace = true }
 reqwest = { workspace = true }
+serde_json = { workspace = true }
 
-[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
 tokio = { workspace = true, features = ["full"] }
 axum = { workspace = true, features = ["tokio", "http1"] }
 iroh = { workspace = true }
 anycall-protocol = { workspace = true, features = ["iroh"] }
+
+[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+
+[target.'cfg(target_family = "wasm")'.dev-dependencies]
+wasm-bindgen-test = "=0.3.71"
+iroh = { workspace = true }
+anycall-protocol = { workspace = true, features = ["iroh"] }
+
+[[bin]]
+name = "wasm-client-server"
+path = "src/bin/wasm_client_server.rs"
+
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

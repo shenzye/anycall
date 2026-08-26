@@ -321,8 +321,14 @@ async fn test_counter_balance_mixed_err_map_err() {
             .unwrap(),
     );
 
-    assert!(matches!(client.sum(-1, 1).await.unwrap_err(), MixedAgentErr::A(_)));
-    assert!(matches!(client.sum(-2, 1).await.unwrap_err(), MixedAgentErr::B(_)));
+    assert!(matches!(
+        client.sum(-1, 1).await.unwrap_err(),
+        MixedAgentErr::A(_)
+    ));
+    assert!(matches!(
+        client.sum(-2, 1).await.unwrap_err(),
+        MixedAgentErr::B(_)
+    ));
     assert!(matches!(
         client.sum_async(-1, 1).await.unwrap_err(),
         MixedAgentErr::A(_)

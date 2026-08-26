@@ -8,4 +8,5 @@
 - Native check: cargo check
 - Wasm check: cargo check --target wasm32-unknown-unknown
 - Tests: cargo test -p anycall-test
+- Wasm client tests: test/wasm-pack-test.sh (native `wasm-client-server` + `wasm-pack test --headless --chrome`)
 

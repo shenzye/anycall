@@ -10,6 +10,9 @@ pub trait Counter {
 #[cfg(test)]
 mod native_tests;
 
+#[cfg(all(test, target_family = "wasm"))]
+mod wasm_tests;
+
 struct CounterNative;
 impl CounterAsyncClient for CounterNative {
     type Err = Infallible;
@@ -21,7 +24,7 @@ impl CounterAsyncClient for CounterNative {
     }
 }
 
-struct CounterServerImpl;
+pub struct CounterServerImpl;
 impl CounterAsyncService for CounterServerImpl {
     type Ctx = ();
     async fn sum(&self, _ctx: (), a: i32, b: i32) -> i32 {
